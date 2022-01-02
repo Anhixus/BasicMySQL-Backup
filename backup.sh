@@ -26,7 +26,8 @@ fi
 
 
 echo "Dumping Dababase: $database to: $outputcatalog"
-time=$(date +"%d_%m_%Y_%T")
+#time=$(date +"%d_%m_%Y_%T") fixed 
+time=$(date +"%Y_%m_%d_%T")
 filename=$database
 filename+="_$time.sql"
 path=$outputcatalog
@@ -40,8 +41,8 @@ patha+=".tar.gz"
 GZIP=-9 tar cvzf $patha $path
 rm -f $path
 
-daytopurge=$(date +%d_%m_%Y -d "$daystostore days ago")
-
+#daytopurge=$(date +%d_%m_%Y -d "$daystostore days ago") #this needs correction? 
+daytopurge=$(date +%Y_%m_%d -d "$daystostore days ago")
 cd $rootcatalog
 if [ -d "$rootcatalog/$daytopurge/" ]
 	then
