@@ -38,6 +38,7 @@ patha=$path
 patha+=".tar.gz"
 #echo "Komenda kompresji: GZIP=-9 tar cvzf $patha $path"
 GZIP=-9 tar cvzf $patha $path
+#rm -f $path --roznica od mysql
 rm -R -f $path
 
 #daytopurge=$(date +%d_%m_%Y -d "$daystostore days ago") #this needs correction?
