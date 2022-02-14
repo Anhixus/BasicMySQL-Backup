@@ -1,47 +1,44 @@
 #/bin/bash
-################################################## CONFIGURATION #######################################################################>#                                                                                                                                       >        database="sit45"
-        rootcatalog="/backup/output/" #path to store your backups
-        dbusername="username"         #grant select on database.*, no adidional permissions! for security ;)
+################################################## CONFIGURATION #######################################################################>#                                                                                                                                       >     >        rootcatalog="/passwork/backup/" #path to store your backups
+        rootcatalog="/backup/path/"
+        dbusername="user"         #grant select on database.*, no adidional permissions! for security ;)
         dbpassword='password'
         daystostore="14"                  #days to store your all your backups, script always leaves one from each day
         authenticationDatabase='admin'
-#                                                                                                                                       >########################################################################################################################################>
+        database='dbname'
+########################################################################################################################################>
 currentdate="$(date +"%d_%m_%Y")"
-outputcatalog=$rootcatalog
-
-
+mkdir $rootcatalog
 cd $rootcatalog
-outputcatalog+=$currentdate
-outputcatalog+="/"
+
+outputcatalog="$rootcatalog$currentdate/"
 if [ -d "$outputcatalog" ]
 then
-echo "Path $outputcatalog$currentdate/ Exists"
+echo "INFO: Path $outputcatalog Exists"
 else
-        echo "Path $outputcatalog$currentdate/ did not exist, creating"
+        echo "INFO: Path $outputcatalog did not exist, creating"
         mkdir $currentdate
 fi
 
-
-echo "Dumping Dababase: $database to: $outputcatalog"
+echo "INFO: Dumping Dababase: $database to: $outputcatalog"
 #time=$(date +"%d_%m_%Y_%T") fixed
 time=$(date +"%Y_%m_%d_%T")
-filename=$database
-#filename+="_$time.sql" ---roznica od mysql
-filename+="_$time"
-path=$outputcatalog
-path+=$filename
+filename="$database_$time"
+path="$outputcatalog$filename"
 
 #mysqldump -u $dbusername -p$dbpassword $database --single-transaction --events --routines --quick --lock-tables=false > $path --roznica od mysql
-mongodump -u $dbusername -p $dbpassword --authenticationDatabase=$authenticationDatabase -d $database -o $path
+echo "INFO: mongodump -u $dbusername -p $dbpassword --authenticationDatabase=$authenticationDatabase -d $database -o $path"
+mongodump -u $dbusername -p $dbpassword --authenticationDatabase=$authenticationDatabase -d $database -o $path >> mongodump.log
 
-patha=$path
-patha+=".tar.gz"
-#echo "Komenda kompresji: GZIP=-9 tar cvzf $patha $path"
-GZIP=-9 tar cvzf $patha $path
+patha="$path.tar.gz"
+echo "INFO: Komenda kompresji: GZIP=-9 tar cvzf $patha $path"
+GZIP=-9 tar cvzf $patha $path >> compression.log
 #rm -f $path --roznica od mysql
+echo "rm -R -f $path"
 rm -R -f $path
 
 #daytopurge=$(date +%d_%m_%Y -d "$daystostore days ago") #this needs correction?
+echo "INFO: DAY TO PURGE $(date +%Y_%m_%d -d "$daystostore days ago")"
 daytopurge=$(date +%Y_%m_%d -d "$daystostore days ago")
 cd $rootcatalog
 if [ -d "$rootcatalog/$daytopurge/" ]
@@ -51,4 +48,3 @@ if [ -d "$rootcatalog/$daytopurge/" ]
 else
         echo "PATH $rootcatalog$daytopurge/ DOESNT EXIST"
 fi
-
