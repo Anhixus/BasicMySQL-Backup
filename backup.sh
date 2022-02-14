@@ -7,10 +7,13 @@
         authenticationDatabase='admin'
         database='dbname'
 ########################################################################################################################################>
-currentdate="$(date +"%d_%m_%Y")"
+
+#Create root catalog
 mkdir $rootcatalog
 cd $rootcatalog
 
+#Create output catalog with current date
+currentdate="$(date +"%d_%m_%Y")"
 outputcatalog="$rootcatalog$currentdate/"
 if [ -d "$outputcatalog" ]
 then
@@ -20,24 +23,28 @@ else
         mkdir $currentdate
 fi
 
-echo "INFO: Dumping Dababase: $database to: $outputcatalog"
-#time=$(date +"%d_%m_%Y_%T") fixed
+#Create filename
 time=$(date +"%Y_%m_%d_%T")
 filename="$database_$time"
 path="$outputcatalog$filename"
 
+#Backup Database
+echo "INFO: Dumping Dababase: $database to: $outputcatalog"
 #mysqldump -u $dbusername -p$dbpassword $database --single-transaction --events --routines --quick --lock-tables=false > $path --roznica od mysql
 echo "INFO: mongodump -u $dbusername -p $dbpassword --authenticationDatabase=$authenticationDatabase -d $database -o $path"
 mongodump -u $dbusername -p $dbpassword --authenticationDatabase=$authenticationDatabase -d $database -o $path >> mongodump.log
 
+#Compress database
 patha="$path.tar.gz"
 echo "INFO: Komenda kompresji: GZIP=-9 tar cvzf $patha $path"
 GZIP=-9 tar cvzf $patha $path >> compression.log
+
+#Remove uncompressed database
 #rm -f $path --roznica od mysql
 echo "rm -R -f $path"
 rm -R -f $path
 
-#daytopurge=$(date +%d_%m_%Y -d "$daystostore days ago") #this needs correction?
+#Remove files from -days to uprge day (has to be run every day for the files to purge)
 echo "INFO: DAY TO PURGE $(date +%Y_%m_%d -d "$daystostore days ago")"
 daytopurge=$(date +%Y_%m_%d -d "$daystostore days ago")
 cd $rootcatalog
